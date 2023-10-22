@@ -86,9 +86,10 @@ def main(config, indir, outdir):
     if not outdir.is_dir():
         logger.error("The output directory doesn't exist")
         raise SystemExit(1)
-    if config == 'GW200129':
 
+    if config == 'GW200129':
         logger.info('Loading data for GW200129')
+
         fs = 512
         suffix = '512Hz_27hrs_whitened.hdf5'
         channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',

@@ -42,6 +42,7 @@ def main(config, outdir):
     if not outdir.is_dir():
         logger.error("The output directory doesn't exist")
         raise SystemExit(1)
+
     if config == 'GW200129':
         logger.info('Downloading data for GW200129')
 
