@@ -1,3 +1,7 @@
+# external and interim data folders
+data/external
+data/interim
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
