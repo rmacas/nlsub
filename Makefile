@@ -20,6 +20,18 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
+features:
+	$(PYTHON_INTERPRETER) src/features/build_features.py --config 'GW200129' --indir /home/jdo86av3c/projects/nlsub-dev/data/interim --outdir /home/jdo86av3c/projects/nlsub-dev/data/processed
+
+train:
+	$(PYTHON_INTERPRETER) src/models/train_model.py --config 'GW200129' --indir /home/jdo86av3c/projects/nlsub-dev/data/processed --outdir /home/jdo86av3c/projects/nlsub-dev/models/GW200129
+
+predict:
+	$(PYTHON_INTERPRETER) src/models/predict_model.py --mem-reduction 4
+
+visualize:
+	$(PYTHON_INTERPRETER) src/visualization/visualize.py
+
 ## Install Python Dependencies
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
