@@ -20,7 +20,7 @@ args = parser.parse_args()
 
 
 def whiten(outdir, tname, fname, channel):
-    """ White the TimeSeries given FrequencySeries ASD."""
+    """ Whiten the TimeSeries given FrequencySeries ASD."""
     tseries = TimeSeries.read(tname)
     asd = FrequencySeries.read(fname)
     twhite = tseries.whiten(asd=asd)
