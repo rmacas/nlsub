@@ -1,6 +1,8 @@
 # external and interim data folders
 data/external
 data/interim
+data/processed
+data/predicted
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
