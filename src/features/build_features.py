@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
+from src import utils
 import numpy as np
 from gwpy.timeseries import TimeSeries
 from scipy.stats import zscore
@@ -79,13 +80,9 @@ def main(config, indir, outdir):
     logger.info('Extracting features from the data set')
 
     indir = Path(indir)
-    if not indir.is_dir():
-        logger.error("The input directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(indir, logger)
     outdir = Path(outdir)
-    if not outdir.is_dir():
-        logger.error("The output directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(outdir, logger)
 
     if config == 'GW200129':
         logger.info('Loading data for GW200129')

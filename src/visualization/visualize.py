@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
-import numpy as np
 import pdb
 import matplotlib.pyplot as plt
+from src import utils
 from pathlib import Path
 from gwpy.timeseries import TimeSeries
 
@@ -71,19 +71,13 @@ def main(config, ndir, cdir, outdir):
     """ Producing noisy vs cleaned spectrograms. """
     logger = logging.getLogger(__name__)
     logger.info('Making spectrograms')
+
     ndir = Path(ndir)
-    if not ndir.is_dir():
-        logger.error("The directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(ndir, logger)
     cdir = Path(cdir)
-    if not cdir.is_dir():
-        print(cdir)
-        logger.error("The directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(cdir, logger)
     outdir = Path(outdir)
-    if not outdir.is_dir():
-        logger.warning("The output directory doesn't exist. Creating it.")
-        outdir.mkdir(parents=True, exist_ok=True)
+    utils.chdir(outdir, logger)
 
     if config == 'GW200129':
         noisy = TimeSeries.read(f'{ndir}/DCS-CALIB_STRAIN_CLEAN_C01_4096Hz_event.hdf5')

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
-import utils
+from src import utils
 from gwpy.timeseries import TimeSeries
 from pathlib import Path
 
@@ -40,7 +40,7 @@ def main(config, outdir):
     logger = logging.getLogger(__name__)
 
     outdir = Path(outdir)
-    utils.chdir(outdir)
+    utils.chdir(outdir, logger)
 
     if config == 'GW200129':
         logger.info('Downloading data for GW200129')

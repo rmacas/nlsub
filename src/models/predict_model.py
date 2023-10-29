@@ -5,6 +5,7 @@ import logging
 import scipy
 import numpy as np
 import tensorflow as tf
+from src import utils
 from pathlib import Path
 from gwpy.timeseries import TimeSeries
 from gwpy.frequencyseries import FrequencySeries
@@ -70,21 +71,13 @@ def main(config, whdir, asddir, modeldir, outdir, mem):
     logger = logging.getLogger(__name__)
     logger.info('Starting the frame cleaning')
     whdir = Path(whdir)
-    if not whdir.is_dir():
-        logger.error("The directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(whdir, logger)
     asddir = Path(asddir)
-    if not asddir.is_dir():
-        logger.error("The directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(asddir, logger)
     modeldir = Path(modeldir)
-    if not modeldir.is_dir():
-        logger.error("The model directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(modeldir, logger)
     outdir = Path(outdir)
-    if not outdir.is_dir():
-        logger.warning("The output directory doesn't exist. Creating it.")
-        outdir.mkdir(parents=True, exist_ok=True)
+    utils.chdir(outdir, logger)
 
     if config == 'GW200129':
         logger.info('Loading and preparing the data for GW200129')

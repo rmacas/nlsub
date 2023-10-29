@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
-import utils
+from src import utils
 from gwpy.timeseries import TimeSeries
 from gwpy.frequencyseries import FrequencySeries
 from pathlib import Path
@@ -36,9 +36,9 @@ def main(config, indir, outdir):
     logger.info('Making final data set to be used for feature extraction')
 
     indir = Path(indir)
-    utils.chdir(indir)
+    utils.chdir(indir, logger)
     outdir = Path(outdir)
-    utils.chdir(outdir)
+    utils.chdir(outdir, logger)
 
     if config == 'GW200129':
         logger.info('Whitening data for GW200129')

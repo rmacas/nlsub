@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from src import utils
 from pathlib import Path
 from sklearn.model_selection import train_test_split as tt_split
 from tensorflow.keras.optimizers import Adam
@@ -80,13 +81,9 @@ def main(config, indir, outdir, type_, mode):
     logger = logging.getLogger(__name__)
     logger.info('Starting model training')
     indir = Path(indir)
-    if not indir.is_dir():
-        logger.error("The input directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(indir, logger)
     outdir = Path(outdir)
-    if not outdir.is_dir():
-        logger.warning("The output directory doesn't exist. Creating it.")
-        outdir.mkdir(parents=True, exist_ok=True)
+    utils.chdir(outdir, logger, create=True)
 
     if config == 'GW200129':
         logger.info('Loading features for GW200129')
