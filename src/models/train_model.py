@@ -29,7 +29,7 @@ args = parser.parse_args()
 
 
 def build_train_dnn(train_input, train_output, val_input, val_output, outdir,
-                    mode, norm):
+                    mode):
     # model params
     width = 1024
     width = 10
@@ -64,7 +64,6 @@ def build_train_dnn(train_input, train_output, val_input, val_output, outdir,
                           batch_size=batch, epochs=epochs, verbose=1)
 
     model.save(outdir)
-    np.savez(f'{outdir}/dataset_params', norm)
 
     plt.figure()
     plt.semilogy(model_fit.history['loss'], label='training')
@@ -77,7 +76,7 @@ def build_train_dnn(train_input, train_output, val_input, val_output, outdir,
 
 
 def main(config, indir, outdir, type_, mode):
-    """ Train a model."""
+    """ Train a model. """
     logger = logging.getLogger(__name__)
     logger.info('Starting model training')
     indir = Path(indir)
@@ -91,26 +90,34 @@ def main(config, indir, outdir, type_, mode):
 
     if config == 'GW200129':
         logger.info('Loading features for GW200129')
-        with np.load(f'{indir}/GW200129_features.npz') as features:
-            input = features['input']
-            output = features['output']
-            norm = features['norm']
+        features = np.load(f'{indir}/GW200129_features.npz')
 
         seed = 0
         split = 0.1
-        train_input, val_input = tt_split(input, test_size=split,
-                                          shuffle=True, random_state=seed)
-        train_output, val_output = tt_split(output, test_size=split,
-                                            shuffle=True, random_state=seed)
+        train_input, val_input = tt_split(features['input'],
+                                          test_size=split,
+                                          shuffle=True,
+                                          random_state=seed)
+        train_output, val_output = tt_split(features['output'],
+                                            test_size=split,
+                                            shuffle=True,
+                                            random_state=seed)
 
         logger.info('Training the model for GW200129')
         if type_ == 'DNN':
             build_train_dnn(train_input, train_output,
                             val_input, val_output,
-                            outdir, mode, norm)
+                            outdir, mode)
         else:
             logger.error("Unknown model architecture")
             raise SystemExit(1)
+
+        np.savez(f'{outdir}/dataset_params',
+                 norm=features['norm'],
+                 fs=features['fs'],
+                 size_input=features['size_input'],
+                 size_future=features['size_future'])
+        features.close()
 
         logger.info('Model training finished')
 
