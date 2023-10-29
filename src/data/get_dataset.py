@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
+import utils
 from gwpy.timeseries import TimeSeries
 from pathlib import Path
 
@@ -33,15 +34,13 @@ def get_asd(outdir, frame, channel, fs, gps_start, gps_end):
 
 def main(config, outdir):
     """ Runs a script to get minimally processed timeseries and ASD data from
-    LIGO. Requires internal access to LIGO proprietary data. Takes a lot of
+    LIGO. Requires internal access to LIGO proprietary data. Takes *a lot* of
     time if the data is on tape.
     """
     logger = logging.getLogger(__name__)
 
     outdir = Path(outdir)
-    if not outdir.is_dir():
-        logger.error("The output directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(outdir)
 
     if config == 'GW200129':
         logger.info('Downloading data for GW200129')

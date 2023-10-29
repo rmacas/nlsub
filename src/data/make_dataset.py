@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
+import utils
 from gwpy.timeseries import TimeSeries
 from gwpy.frequencyseries import FrequencySeries
 from pathlib import Path
@@ -35,13 +36,9 @@ def main(config, indir, outdir):
     logger.info('Making final data set to be used for feature extraction')
 
     indir = Path(indir)
-    if not indir.is_dir():
-        logger.error("The input directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(indir)
     outdir = Path(outdir)
-    if not outdir.is_dir():
-        logger.error("The output directory doesn't exist")
-        raise SystemExit(1)
+    utils.chdir(outdir)
 
     if config == 'GW200129':
         logger.info('Whitening data for GW200129')
