@@ -139,7 +139,8 @@ def main(config, indir, outdir):
         # input array has max abs val of 1, no need to normalise it
 
         np.savez_compressed(f'{outdir}/GW200129_features',
-                            input=input, output=output, norm=norm)
+                            input=input, output=output, norm=norm, fs=fs,
+                            size_input=size_input, size_future=size_future)
         logger.info('Features extracted')
 
     else:
