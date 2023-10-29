@@ -56,11 +56,6 @@ def main(config, indir, outdir):
                 fname = f'{indir}/{channel[3:]}_{fs}Hz_ASD.hdf5'
                 whiten(outdir, tname, fname, channel)
 
-        # do this separately for the 4096Hz original frame
-        tname = f'{indir}/DCS-CALIB_STRAIN_CLEAN_C01_4096Hz_event.hdf5'
-        fname = f'{indir}/DCS-CALIB_STRAIN_CLEAN_C01_4096Hz_ASD.hdf5'
-        whiten(outdir, tname, fname, channel)
-
         logger.info('Data whitened')
 
     else:
