@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import argparse
 import logging
-import pdb
 import matplotlib.pyplot as plt
 from src import utils
 from pathlib import Path
@@ -10,43 +9,47 @@ from gwpy.timeseries import TimeSeries
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--config", help="configuration, default: GW200129",
-                    default='GW200129', type=str)
 parser.add_argument("--noisydir",
-                    help="directory of the noisy timeseries, default: data/external",
+                    help="noisy timeseries directory, default: data/external",
                     default=Path('data/external'))
-parser.add_argument("--cleandir", help="cirectory of the clean timeseris, default: data/predicted",
-                    default=Path('data/predicted'), type=str)
+parser.add_argument("--cleandir",
+                    help="clean timeseries directory, default: data/predicted",
+                    default=Path('data/predicted'))
 parser.add_argument("--outdir",
-                    help="output directory for visualizations, default: reports/figures",
+                    help="outdir for visualizations, default: reports/figures",
                     default=Path('reports/figures'))
 args = parser.parse_args()
 
 
-def make_oscan(noisy, clean, t0, win_plot, win_crop, alim, ylim, qrange, outdir):
+def make_oscan(noisy, clean, t0, outdir):
+    win_crop = 40
     noisy = noisy.crop(t0 - win_crop/2, t0 + win_crop/2)
     clean = clean.crop(t0 - win_crop/2, t0 + win_crop/2)
 
     noisy = TimeSeries(noisy, times=noisy.times.value - t0)
     clean = TimeSeries(clean, times=clean.times.value - t0)
 
+    win_plot = 4
     plot_start = t0 - win_plot/2
     plot_end = t0 + win_plot/2
 
+    qrange = (10, 20)
     dataset = ['orig', 'clean', 'diff']
     q_trans = {}
-    q_trans['orig'] = noisy.q_transform(outseg=(plot_start, plot_end), qrange=qrange)
-    q_trans['clean'] = clean.q_transform(outseg=(plot_start, plot_end), qrange=qrange)
+    q_trans['orig'] = noisy.q_transform(outseg=(plot_start, plot_end),
+                                        qrange=qrange)
+    q_trans['clean'] = clean.q_transform(outseg=(plot_start, plot_end),
+                                         qrange=qrange)
     q_trans['diff'] = q_trans['orig'] - q_trans['clean']
+
+    plot, axes = plt.subplots(nrows=3, sharex=True, figsize=(3.375*2, 3.375*3))
 
     label = {}
     label['orig'] = 'Original data'
     label['clean'] = 'Cleaned data'
     label['diff'] = 'Original - Cleaned'
-
-    pdb.set_trace()
-    plot, axes = plt.subplots(nrows=3, sharex=True, figsize=(3.375*2.0, 3.375*3.0))
-
+    alim = (0, 25)
+    ylim = (10, 1024)
     for i, ax in zip(dataset, axes):
 
         ax.imshow(q_trans[i], vmin=alim[0], vmax=alim[1])
@@ -67,7 +70,7 @@ def make_oscan(noisy, clean, t0, win_plot, win_crop, alim, ylim, qrange, outdir)
     plot.savefig(f'{outdir}/{t0}.png', dpi=400)
 
 
-def main(config, ndir, cdir, outdir):
+def main(ndir, cdir, outdir):
     """ Producing noisy vs cleaned spectrograms. """
     logger = logging.getLogger(__name__)
     logger.info('Making spectrograms')
@@ -79,26 +82,16 @@ def main(config, ndir, cdir, outdir):
     outdir = Path(outdir)
     utils.chdir(outdir, logger)
 
-    if config == 'GW200129':
-        noisy = TimeSeries.read(f'{ndir}/DCS-CALIB_STRAIN_CLEAN_C01_4096Hz_event.hdf5')
-        clean = TimeSeries.read(f'{cdir}/DCS-CALIB_STRAIN_CLEAN_C01_4096Hz_NLSUB.hdf5')
+    n = TimeSeries.read(f'{ndir}/DCS-CALIB_STRAIN_CLEAN_C01_4096Hz_event.hdf5')
+    c = TimeSeries.read(f'{cdir}/DCS-CALIB_STRAIN_NLSUB_C01_4096Hz_event.hdf5')
 
-        win_plot = 4
-        win_crop = 4
-        alim = (0, 25)
-        ylim = (10, 1024)
-        qrange = (10, 20)
-        times = [1264316116, 1264316154, 1264316164]
-        for time in times:
-            make_oscan(noisy, clean, time, win_plot, win_crop, alim, ylim, qrange, outdir)
-        logger.info('Spectrograms produced.')
-
-    else:
-        logger.error('Unknown config')
-        raise SystemExit(1)
+    times = [1264316116, 1264316154, 1264316164]
+    for time in times:
+        make_oscan(n, c, time, outdir)
+    logger.info('Spectrograms produced')
 
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-    main(args.config, args.noisydir, args.cleandir, args.outdir)
+    main(args.noisydir, args.cleandir, args.outdir)
