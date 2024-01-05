@@ -9,8 +9,6 @@ from pathlib import Path
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--config", help="configuration, default: GW200129",
-                    default='GW200129', type=str)
 parser.add_argument("--indir",
                     help="input directory, default: data/interim",
                     default=Path('data/interim'))
@@ -74,7 +72,7 @@ def get_features(dset, input, output, idx, padding, size_input, size_future):
     return input, output
 
 
-def main(config, indir, outdir):
+def main(indir, outdir):
     """ Feature extraction to train a ML model on."""
     logger = logging.getLogger(__name__)
     logger.info('Extracting features from the data set')
@@ -84,68 +82,63 @@ def main(config, indir, outdir):
     outdir = Path(outdir)
     utils.chdir(outdir, logger)
 
-    if config == 'GW200129':
-        logger.info('Loading data for GW200129')
+    logger.info('Loading data')
 
-        fs = 512
-        suffix = '512Hz_27hrs_whitened.hdf5'
-        channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',
-                    'L1:LSC-POP_A_RF45_I_ERR_DQ',
-                    'L1:LSC-POP_A_RF45_Q_ERR_DQ',
-                    'L1:LSC-POP_A_RF9_I_ERR_DQ']
-        channels = [f'{channel[3:]}_{suffix}' for channel in channels]
+    fs = 512
+    suffix = '512Hz_27hrs_whitened.hdf5'
+    channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',
+                'L1:LSC-POP_A_RF45_I_ERR_DQ',
+                'L1:LSC-POP_A_RF45_Q_ERR_DQ',
+                'L1:LSC-POP_A_RF9_I_ERR_DQ']
+    channels = [f'{channel[3:]}_{suffix}' for channel in channels]
 
-        dset, norm = load_data(indir, channels, fs)
+    dset, norm = load_data(indir, channels, fs)
 
-        logger.info('Processing data for GW200129')
-        logger.warning('This is a memory-intensive task. Requires O(20GB) '
-                       'memory')
-        padding = fs * 4  # amount of data considered 'related' around an idx
-        threshold = 11.7  # found by trial for dset[1]
-        noisy_idx = find_noisy(dset[1], threshold, padding)
+    logger.info('Processing data')
+    logger.warning('This is a memory-intensive task. Requires O(20GB) '
+                   'memory')
+    padding = fs * 4  # amount of data considered 'related' around an idx
+    threshold = 11.7  # found by trial for dset[1]
+    noisy_idx = find_noisy(dset[1], threshold, padding)
 
-        # input array params
-        size_input = int(fs*1.5)
-        size_future = int(fs/2)
-        size_input = 96
-        size_future = 32
+    # input array params
+    size_input = int(fs*1.5)
+    size_future = int(fs/2)
+    size_input = 96
+    size_future = 32
 
-        # get features
-        input = []
-        output = []
-        for idx in noisy_idx:
-            input, output = get_features(dset, input, output, idx, padding,
-                                         size_input, size_future)
-        input = np.array(input)
-        output = np.hstack(output).reshape(-1, 1)
+    # get features
+    input = []
+    output = []
+    for idx in noisy_idx:
+        input, output = get_features(dset, input, output, idx, padding,
+                                     size_input, size_future)
+    input = np.array(input)
+    output = np.hstack(output).reshape(-1, 1)
 
-        # remove glitches
-        glitch_threshold = 40  # threshold factor found by trial
-        glitch_idx = find_noisy(output, glitch_threshold, padding)
+    # remove glitches
+    glitch_threshold = 40  # threshold factor found by trial
+    glitch_idx = find_noisy(output, glitch_threshold, padding)
 
-        for idx in glitch_idx[::-1]:
-            idx_start = idx - padding - size_input - size_future
-            idx_end = idx + padding + size_future
-            output = np.delete(output, slice(idx_start, idx_end), axis=0)
-            input = np.delete(input, slice(idx_start, idx_end), axis=0)
+    for idx in glitch_idx[::-1]:
+        idx_start = idx - padding - size_input - size_future
+        idx_end = idx + padding + size_future
+        output = np.delete(output, slice(idx_start, idx_end), axis=0)
+        input = np.delete(input, slice(idx_start, idx_end), axis=0)
 
-        # normalisation
-        norm_output = np.max(np.abs(output))
-        output = output / norm_output
-        norm[0] *= norm_output
-        # input array has max abs val of 1, no need to normalise it
+    # normalisation
+    norm_output = np.max(np.abs(output))
+    output = output / norm_output
+    norm[0] *= norm_output
+    # input array has max abs val of 1, no need to normalise it
 
-        np.savez_compressed(f'{outdir}/GW200129_features',
-                            input=input, output=output, norm=norm, fs=fs,
-                            size_input=size_input, size_future=size_future)
-        logger.info('Features extracted')
-
-    else:
-        logger.error('Unknown config')
-        raise SystemExit(1)
+    np.savez_compressed(f'{outdir}/features',
+                        input=input, output=output, norm=norm, fs=fs,
+                        size_input=size_input, size_future=size_future)
+    logger.info('Features extracted')
 
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-    main(args.config, args.indir, args.outdir)
+    main(args.indir, args.outdir)

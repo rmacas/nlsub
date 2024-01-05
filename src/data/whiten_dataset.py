@@ -8,8 +8,6 @@ from pathlib import Path
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--config", help="configuration, default: GW200129",
-                    default='GW200129', type=str)
 parser.add_argument("--indir",
                     help="input directory, default: data/external",
                     default=Path('data/external'))
@@ -30,41 +28,34 @@ def whiten(outdir, tname, fname, channel):
     return
 
 
-def main(config, indir, outdir):
+def main(indir, outdir):
     """ Data whitening."""
     logger = logging.getLogger(__name__)
-    logger.info('Making final data set to be used for feature extraction')
+    logger.info('Whitening data')
 
     indir = Path(indir)
     utils.chdir(indir, logger)
     outdir = Path(outdir)
     utils.chdir(outdir, logger)
 
-    if config == 'GW200129':
-        logger.info('Whitening data for GW200129')
+    fs = 512
+    suffixes = ['27hrs', 'event']
+    channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',
+                'L1:LSC-POP_A_RF45_I_ERR_DQ',
+                'L1:LSC-POP_A_RF45_Q_ERR_DQ',
+                'L1:LSC-POP_A_RF9_I_ERR_DQ']
 
-        fs = 512
-        suffixes = ['27hrs', 'event']
-        channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',
-                    'L1:LSC-POP_A_RF45_I_ERR_DQ',
-                    'L1:LSC-POP_A_RF45_Q_ERR_DQ',
-                    'L1:LSC-POP_A_RF9_I_ERR_DQ']
+    for suffix in suffixes:
+        for channel in channels:
+            tname = f'{indir}/{channel[3:]}_{fs}Hz_{suffix}.hdf5'
+            fname = f'{indir}/{channel[3:]}_{fs}Hz_ASD.hdf5'
+            whiten(outdir, tname, fname, channel)
 
-        for suffix in suffixes:
-            for channel in channels:
-                tname = f'{indir}/{channel[3:]}_{fs}Hz_{suffix}.hdf5'
-                fname = f'{indir}/{channel[3:]}_{fs}Hz_ASD.hdf5'
-                whiten(outdir, tname, fname, channel)
-
-        logger.info('Data whitened')
-
-    else:
-        logger.error('Unknown config')
-        raise SystemExit(1)
+    logger.info('Data whitened')
 
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
 
-    main(args.config, args.indir, args.outdir)
+    main(args.indir, args.outdir)

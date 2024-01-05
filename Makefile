@@ -21,10 +21,10 @@ endif
 #################################################################################
 
 features:
-	$(PYTHON_INTERPRETER) src/features/build_features.py --config 'GW200129' --indir /home/jdo86av3c/projects/nlsub-dev/data/interim --outdir /home/jdo86av3c/projects/nlsub-dev/data/processed
+	$(PYTHON_INTERPRETER) src/features/build_features.py --indir data/interim --outdir data/processed
 
 train:
-	$(PYTHON_INTERPRETER) src/models/train_model.py --config 'GW200129' --indir /home/jdo86av3c/projects/nlsub-dev/data/processed --outdir /home/jdo86av3c/projects/nlsub-dev/models/GW200129
+	$(PYTHON_INTERPRETER) src/models/train_model.py --indir data/processed --outdir models/GW200129
 
 predict:
 	$(PYTHON_INTERPRETER) src/models/predict_model.py --mem-reduction 4

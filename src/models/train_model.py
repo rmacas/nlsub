@@ -12,8 +12,6 @@ from tensorflow.keras.optimizers.schedules import InverseTimeDecay as ITD
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--config", help="configuration, default: GW200129",
-                    default='GW200129', type=str)
 parser.add_argument("--indir",
                     help="input directory, default: data/processed",
                     default=Path('data/interim'))
@@ -76,54 +74,49 @@ def build_train_dnn(train_input, train_output, val_input, val_output, outdir,
     plt.close()
 
 
-def main(config, indir, outdir, type_, mode):
+def main(indir, outdir, type_, mode):
     """ Train a model. """
     logger = logging.getLogger(__name__)
     logger.info('Starting model training')
+
     indir = Path(indir)
     utils.chdir(indir, logger)
     outdir = Path(outdir)
     utils.chdir(outdir, logger, create=True)
 
-    if config == 'GW200129':
-        logger.info('Loading features for GW200129')
-        features = np.load(f'{indir}/GW200129_features.npz')
+    logger.info('Loading features')
+    features = np.load(f'{indir}/features.npz')
 
-        seed = 0
-        split = 0.1
-        train_input, val_input = tt_split(features['input'],
-                                          test_size=split,
-                                          shuffle=True,
-                                          random_state=seed)
-        train_output, val_output = tt_split(features['output'],
-                                            test_size=split,
-                                            shuffle=True,
-                                            random_state=seed)
+    seed = 0
+    split = 0.1
+    train_input, val_input = tt_split(features['input'],
+                                      test_size=split,
+                                      shuffle=True,
+                                      random_state=seed)
+    train_output, val_output = tt_split(features['output'],
+                                        test_size=split,
+                                        shuffle=True,
+                                        random_state=seed)
 
-        logger.info('Training the model for GW200129')
-        if type_ == 'DNN':
-            build_train_dnn(train_input, train_output,
-                            val_input, val_output,
-                            outdir, mode)
-        else:
-            logger.error("Unknown model architecture")
-            raise SystemExit(1)
-
-        np.savez(f'{outdir}/dataset_params',
-                 norm=features['norm'],
-                 fs=features['fs'],
-                 size_input=features['size_input'],
-                 size_future=features['size_future'])
-        features.close()
-
-        logger.info('Model training finished')
-
+    logger.info('Training the model')
+    if type_ == 'DNN':
+        build_train_dnn(train_input, train_output,
+                        val_input, val_output,
+                        outdir, mode)
     else:
-        logger.error('Unknown config')
+        logger.error("Unknown model architecture")
         raise SystemExit(1)
+
+    np.savez(f'{outdir}/dataset_params',
+             norm=features['norm'],
+             fs=features['fs'],
+             size_input=features['size_input'],
+             size_future=features['size_future'])
+    features.close()
+    logger.info('Model training finished')
 
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-    main(args.config, args.indir, args.outdir, args.model, args.train_mode)
+    main(args.indir, args.outdir, args.model, args.train_mode)
