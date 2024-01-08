@@ -14,7 +14,7 @@ from tensorflow.keras.optimizers.schedules import InverseTimeDecay as ITD
 parser = argparse.ArgumentParser()
 parser.add_argument("--indir",
                     help="input directory, default: data/processed",
-                    default=Path('data/interim'))
+                    default=Path('data/processed'))
 parser.add_argument("--outdir",
                     help="output directory, default: models/GW200129",
                     default=Path('models/GW200129'))

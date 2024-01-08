@@ -22,7 +22,8 @@ def get_tseries(outdir, suffix, frame, channel, fs, gps_start, gps_end):
     """Get time series using GWpy. Needs access to LIGO proprietary data."""
     tseries = TimeSeries.get(channel=channel, start=gps_start, end=gps_end,
                              frametype=frame).resample(fs)
-    tseries.write(f'{outdir}/{channel[3:]}_{fs}Hz_{suffix}.hdf5', path=channel)
+    tseries.write(f'{outdir}/{channel[3:]}_{fs}Hz_{suffix}.hdf5',
+                  overwrite=True, path=channel)
     return
 
 
@@ -31,7 +32,8 @@ def get_asd(outdir, frame, channel, fs, gps_start, gps_end):
     tseries = TimeSeries.get(channel=channel, start=gps_start, end=gps_end,
                              frametype=frame).resample(fs)
     asd = tseries.asd(4, 2, method='median')
-    asd.write(f'{outdir}/{channel[3:]}_{fs}Hz_ASD.hdf5', path=channel)
+    asd.write(f'{outdir}/{channel[3:]}_{fs}Hz_ASD.hdf5', overwrite=True,
+              path=channel)
     return
 
 
@@ -42,7 +44,8 @@ def whiten(outdir, tname, fname, channel):
     twhite = tseries.whiten(asd=asd)
 
     tname = tname.split('/')[-1].split('.')[0]
-    twhite.write(f'{outdir}/{tname}_whitened.hdf5', path=channel)
+    twhite.write(f'{outdir}/{tname}_whitened.hdf5', overwrite=True,
+                 path=channel)
     return
 
 
@@ -103,6 +106,9 @@ def get_features(dset, input, output, box_start, box_end, size_input,
 
 
 def make_oscan(noisy, clean, t0, outdir):
+    """Plot omegascans of the original, cleaned and the difference of the
+    time-series.
+    """
     win_crop = 40
     noisy = noisy.crop(t0 - win_crop/2, t0 + win_crop/2)
     clean = clean.crop(t0 - win_crop/2, t0 + win_crop/2)
@@ -146,6 +152,5 @@ def make_oscan(noisy, clean, t0, outdir):
     cbar = axes[0].colorbar(clim=(alim[0], alim[1]), location='top')
     cbar.set_label(r"$\mathrm{Normalized \ energy}$")
 
-    plot.tight_layout()
     plot.subplots_adjust(top=0.85)
     plot.savefig(f'{outdir}/{t0}.png', dpi=400)
