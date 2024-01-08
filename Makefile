@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: clean data lint requirements
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -20,26 +20,28 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-features:
-	$(PYTHON_INTERPRETER) src/features/build_features.py --indir data/interim --outdir data/processed
+get_data: requirements
+	$(PYTHON_INTERPRETER) src/data/get_dataset.py 
 
-train:
-	$(PYTHON_INTERPRETER) src/models/train_model.py --indir data/processed --outdir models/GW200129
+whiten_data: requirements
+	$(PYTHON_INTERPRETER) src/data/whiten_dataset.py
 
-predict:
+features: 
+	$(PYTHON_INTERPRETER) src/features/build_features.py
+
+train: 
+	$(PYTHON_INTERPRETER) src/models/train_model.py
+
+predict: requirements
 	$(PYTHON_INTERPRETER) src/models/predict_model.py --mem-reduction 4
 
-visualize:
+visualize: 
 	$(PYTHON_INTERPRETER) src/visualization/visualize.py
 
 ## Install Python Dependencies
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
-
-## Make Dataset
-data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
 ## Delete all compiled Python files
 clean:
@@ -49,22 +51,6 @@ clean:
 ## Lint using flake8
 lint:
 	flake8 src
-
-## Upload Data to S3
-sync_data_to_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync data/ s3://$(BUCKET)/data/
-else
-	aws s3 sync data/ s3://$(BUCKET)/data/ --profile $(PROFILE)
-endif
-
-## Download Data from S3
-sync_data_from_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync s3://$(BUCKET)/data/ data/
-else
-	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
-endif
 
 ## Set up python interpreter environment
 create_environment:
