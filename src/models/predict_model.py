@@ -29,41 +29,6 @@ parser.add_argument("--mem-reduction", default=32, type=int,
 args = parser.parse_args()
 
 
-def load_data(indir, channels, fs):
-
-    dset = []
-    norm = []
-    for channel in channels:
-
-        fname = f'{indir}/{channel}'
-        tseries = TimeSeries.read(fname)
-
-        # remove sides due to whitening artifacts
-        data = tseries[fs*4:-fs*4].reshape(-1, 1)
-        time = tseries[fs*4:-fs*4].times
-
-        # normalize and record the normalisation factor
-        norm_factor = np.max(np.abs(data))
-        norm.append(norm_factor)
-        dset.append(data / norm_factor)
-
-    dset = np.squeeze(dset).astype('float32')
-    time = np.array(time)
-
-    return dset, time, norm
-
-
-def get_iarray(dset, input, box_start, box_end, size_input, size_future):
-    """ Build input array based on the network architecture."""
-    size_past = size_input - size_future
-    for i in range(box_start+size_past, box_end-size_future):
-        array = np.array([dset[1, i-size_past:i+size_future],
-                          dset[2, i-size_past:i+size_future],
-                          dset[3, i-size_past:i+size_future]])
-        input.append(array)
-    return input
-
-
 def main(whdir, asddir, modeldir, outdir, mem):
     """ Use the model to get cleaned frame. """
     logger = logging.getLogger(__name__)
@@ -94,7 +59,7 @@ def main(whdir, asddir, modeldir, outdir, mem):
 
     suffix = f'{fs}Hz_event_whitened.hdf5'
     channels = [f'{channel[3:]}_{suffix}' for channel in channels]
-    dset, time, norm = load_data(whdir, channels, fs)
+    dset, time, norm = utils.load_data(whdir, channels, fs)
 
     # re-normalize the data w.r.t. the dataset used in the training
     for i in range(len(dset)):
@@ -110,8 +75,8 @@ def main(whdir, asddir, modeldir, outdir, mem):
         input = []
         box_start = 0 if i == 0 else breaks[i] - size_input
         box_end = breaks[i+1]
-        input = get_iarray(dset, input, box_start, box_end, size_input,
-                           size_future)
+        input, _ = utils.get_features(dset, input, [], box_start, box_end,
+                                      size_input, size_future)
         prediction.append(model.predict(np.array(input)))
 
     prediction = np.squeeze(np.vstack(prediction))

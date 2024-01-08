@@ -2,8 +2,6 @@
 import argparse
 import logging
 from src import utils
-from gwpy.timeseries import TimeSeries
-from gwpy.frequencyseries import FrequencySeries
 from pathlib import Path
 
 
@@ -17,17 +15,6 @@ parser.add_argument("--outdir",
 args = parser.parse_args()
 
 
-def whiten(outdir, tname, fname, channel):
-    """ Whiten the TimeSeries given FrequencySeries ASD."""
-    tseries = TimeSeries.read(tname)
-    asd = FrequencySeries.read(fname)
-    twhite = tseries.whiten(asd=asd)
-
-    tname = tname.split('/')[-1].split('.')[0]
-    twhite.write(f'{outdir}/{tname}_whitened.hdf5', path=channel)
-    return
-
-
 def main(indir, outdir):
     """ Data whitening."""
     logger = logging.getLogger(__name__)
@@ -38,7 +25,7 @@ def main(indir, outdir):
     outdir = Path(outdir)
     utils.chdir(outdir, logger)
 
-    fs = 512
+    fs = 512  # sampling rate
     suffixes = ['27hrs', 'event']
     channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',
                 'L1:LSC-POP_A_RF45_I_ERR_DQ',
@@ -49,7 +36,7 @@ def main(indir, outdir):
         for channel in channels:
             tname = f'{indir}/{channel[3:]}_{fs}Hz_{suffix}.hdf5'
             fname = f'{indir}/{channel[3:]}_{fs}Hz_ASD.hdf5'
-            whiten(outdir, tname, fname, channel)
+            utils.whiten(outdir, tname, fname, channel)
 
     logger.info('Data whitened')
 

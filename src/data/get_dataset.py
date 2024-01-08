@@ -2,7 +2,6 @@
 import argparse
 import logging
 from src import utils
-from gwpy.timeseries import TimeSeries
 from pathlib import Path
 
 
@@ -11,23 +10,6 @@ parser.add_argument("--outdir",
                     help="output directory, default: data/external",
                     default=Path('data/external'))
 args = parser.parse_args()
-
-
-def get_tseries(outdir, suffix, frame, channel, fs, gps_start, gps_end):
-    """Get time series using GWpy. Needs access to LIGO proprietary data."""
-    tseries = TimeSeries.get(channel=channel, start=gps_start, end=gps_end,
-                             frametype=frame).resample(fs)
-    tseries.write(f'{outdir}/{channel[3:]}_{fs}Hz_{suffix}.hdf5', path=channel)
-    return
-
-
-def get_asd(outdir, frame, channel, fs, gps_start, gps_end):
-    """Get ASD using GWpy. Needs access to LIGO proprietary data."""
-    tseries = TimeSeries.get(channel=channel, start=gps_start, end=gps_end,
-                             frametype=frame).resample(fs)
-    asd = tseries.asd(4, 2, method='median')
-    asd.write(f'{outdir}/{channel[3:]}_{fs}Hz_ASD.hdf5', path=channel)
-    return
 
 
 def main(outdir):
@@ -40,10 +22,8 @@ def main(outdir):
     outdir = Path(outdir)
     utils.chdir(outdir, logger)
 
-    # sampling rate
-    fs = 512
+    fs = 512  # sampling rate
 
-    # frame and channels
     frame = 'L1_HOFT_C01'
     channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',
                 'L1:LSC-POP_A_RF45_I_ERR_DQ',
@@ -57,11 +37,12 @@ def main(outdir):
     gps_end = gps_event + 2048
 
     for channel in channels:
-        get_tseries(outdir, suffix, frame, channel, fs, gps_start, gps_end)
+        utils.get_tseries(outdir, suffix, frame, channel, fs, gps_start,
+                          gps_end)
 
-    # get 4096 Hz frame used to get cleaned frame
-    get_tseries(outdir, suffix, frame, channels[0], 4096, gps_start,
-                gps_end)
+    # get 4096 Hz data used to get the cleaned frame
+    utils.get_tseries(outdir, suffix, frame, channels[0], 4096, gps_start,
+                      gps_end)
 
     # get 27hr data used for training
     suffix = '27hrs'
@@ -69,16 +50,17 @@ def main(outdir):
     gps_end = gps_start + 27*60*60
 
     for channel in channels:
-        get_tseries(outdir, suffix, frame, channel, fs, gps_start, gps_end)
+        utils.get_tseries(outdir, suffix, frame, channel, fs, gps_start,
+                          gps_end)
 
-    # get ASD
+    # get ASD for data whitening
     gps_asd = gps_event - 450
     asd_win = 256
     gps_start = gps_asd - asd_win
     gps_end = gps_asd + asd_win
 
     for channel in channels:
-        get_asd(outdir, frame, channel, fs, gps_start, gps_end)
+        utils.get_asd(outdir, frame, channel, fs, gps_start, gps_end)
 
     logger.info('Data downloaded')
 

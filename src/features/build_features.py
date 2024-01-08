@@ -28,7 +28,7 @@ def main(indir, outdir):
 
     logger.info('Loading data')
 
-    fs = 512
+    fs = 512  # sampling rate
     suffix = '512Hz_27hrs_whitened.hdf5'
     channels = ['L1:DCS-CALIB_STRAIN_CLEAN_C01',
                 'L1:LSC-POP_A_RF45_I_ERR_DQ',
@@ -36,7 +36,7 @@ def main(indir, outdir):
                 'L1:LSC-POP_A_RF9_I_ERR_DQ']
     channels = [f'{channel[3:]}_{suffix}' for channel in channels]
 
-    dset, norm = utils.load_data(indir, channels, fs)
+    dset, _, norm = utils.load_data(indir, channels, fs)
 
     logger.info('Processing data')
     logger.warning('This is a memory-intensive task. Requires O(20GB) '
@@ -55,8 +55,10 @@ def main(indir, outdir):
     input = []
     output = []
     for idx in noisy_idx:
-        input, output = utils.get_features(dset, input, output, idx, padding,
-                                           size_input, size_future)
+        box_start = idx - padding
+        box_end = idx + padding
+        input, output = utils.get_features(dset, input, output, box_start,
+                                           box_end, size_input, size_future)
     input = np.array(input)
     output = np.hstack(output).reshape(-1, 1)
 
