@@ -75,7 +75,8 @@ def find_noisy(data, threshold, padding):
 
     noise_idx = np.argwhere(np.abs(zscore(data)) > threshold).T.tolist()[0]
 
-    # source https://stackoverflow.com/questions/53177358/removing-numbers-which-are-close-to-each-other-in-a-list
+    # pylint: disable-next=global-statement
+    # source https://stackoverflow.com/questions/53177358/removing-numbers-which-are-close-to-each-other-in-a-list  # noqa: E501
     usedValues = set()
     noise_idx_isolated = []
     for v in noise_idx:
