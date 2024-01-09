@@ -50,3 +50,4 @@ for channel in channels:
 
     # write final tseries to a file
     np.save(f'{channel[3:]}_{frate}Hz_{suffix}', tseries_array)
+
