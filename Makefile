@@ -20,10 +20,10 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-get_data: requirements
+get_data:
 	$(PYTHON_INTERPRETER) src/data/get_dataset.py 
 
-whiten_data: requirements
+whiten_data:
 	$(PYTHON_INTERPRETER) src/data/whiten_dataset.py
 
 features: 
@@ -32,8 +32,8 @@ features:
 train: 
 	$(PYTHON_INTERPRETER) src/models/train_model.py
 
-predict: requirements
-	$(PYTHON_INTERPRETER) src/models/predict_model.py --mem-reduction 4
+predict:
+	$(PYTHON_INTERPRETER) src/models/predict_model.py
 
 visualize: 
 	$(PYTHON_INTERPRETER) src/visualization/visualize.py
