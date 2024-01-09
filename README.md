@@ -12,15 +12,15 @@ Cleaned time-series data frame is publicly available on [Zenodo](https://zenodo.
 Examples of the cleaned data are in the `reports/figures` folder.
 
 --------
-Makefile commands
-- `make get_data` - Download all required data. Requires access to LIGO internal data. Warning: data is on tape, so this step may take hours.
-- `make whiten_data` - Whiten the time-series data.
-- `make features` - Prepare features for the model training.
-- `make train` - Train the model.
-- `make predict` - Clean the data around GW200129 using the model 
-- `make visualize` - Produce plots showing the difference between the original and cleaned data.
+Makefile commands:
+- `get_data` - Download all required data. Requires access to LIGO internal data. Warning: data is on tape, so this step may take hours.
+- `whiten_data` - Whiten the time-series data.
+- `features` - Prepare features for training the model.
+- `train` - Train the model.
+- `predict` - Clean the data around GW200129 using the model.
+- `visualize` - Produce plots showing the difference between the original and cleaned data.
 - `create_environment` - Set up Python interpreter environment.
-- `test_environment` - Test Python environment setup
+- `test_environment` - Test Python environment setup.
 - `clean` - Delete all compiled Python files.
 - `lint` - Lint using flake8.
 
