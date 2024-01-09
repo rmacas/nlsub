@@ -13,7 +13,7 @@ Examples of the cleaned data are in the `reports/figures` folder.
 
 --------
 Makefile commands:
-- `get_data` - Download all required data. Requires access to LIGO internal data. Warning: data is on tape, so this step may take hours.
+- `get_data` - Download all required data. Requires access to LIGO internal data. Warning: some data is on tape, so this step may take hours.
 - `whiten_data` - Whiten the time-series data.
 - `features` - Prepare features for training the model.
 - `train` - Train the model.
