@@ -1,56 +1,26 @@
-nlsub-dev
+nlsub
 ==============================
 
-nlsub-dev
+Non-linear noise subtraction for gravitational-wave data tailored for GW200129 using machine learning. Full reproduction requires access to LIGO internal data and a GPU with about 30GB memory. 
 
-Project Organization
-------------
+For more scientific details, read [arXiv:2311.09921](https://arxiv.org/abs/2311.09921). 
 
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+Cleaned time-series data frame is publicly available on [Zenodo](https://zenodo.org/records/10143338).
 
+Examples of the cleaned data are in `reports/figures` folder.
+
+Makefile commands:
+- `make get_data`           <- Download all required data. Requires access to LIGO internal data. Warning: data is on tape, so this step may take hours.
+- `make whiten_data`        <- Whiten the time-series data.
+- `make features`           <- Prepare features for the model training.
+- `make train`              <- Train the model.
+- `make predict`            <- Clean the data around GW200129 using the model 
+- `make visualize`          <- Produce plots showing the difference between the original and cleaned data.
+
+- `create_environment`      <- Set up Python interpreter evironment.
+- `test_environment`        <- Test Python ennvironment setup
+- `clean`                   <- Delete all compiled Python files.
+- `lint`                    <- Lint using flake8.
 
 --------
 
