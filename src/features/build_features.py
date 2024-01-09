@@ -48,8 +48,8 @@ def main(indir, outdir):
     # input array params
     size_input = int(fs*1.5)
     size_future = int(fs/2)
-    size_input = 96
-    size_future = 32
+    size_input = 768
+    size_future = 256
 
     # get features
     input = []

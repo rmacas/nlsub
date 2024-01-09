@@ -47,17 +47,17 @@ def build_train_dnn(train_input, train_output, val_input, val_output, outdir,
 
     if mode == 'fast':
         lr = 1e-4
+        epochs = 50
         model.compile(loss='mean_squared_error',
                       optimizer=Adam(learning_rate=lr))
     elif mode == 'slow':
         lr = 1e-3
+        epochs = 500
         lr_schedule = ITD(lr, decay_steps=80, decay_rate=10, staircase=True)
         model.compile(loss='mean_squared_error',
                       optimizer=Adam(learning_rate=lr_schedule))
 
     batch = 10000
-    epochs = 500
-    epochs = 5
     model_fit = model.fit(train_input, train_output,
                           validation_data=(val_input, val_output),
                           batch_size=batch, epochs=epochs, verbose=1)
