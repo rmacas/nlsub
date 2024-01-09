@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 from gwpy.timeseries import TimeSeries
@@ -41,7 +42,16 @@ def whiten(outdir, tname, fname, channel):
     """ Whiten the TimeSeries given FrequencySeries ASD."""
     tseries = TimeSeries.read(tname)
     asd = FrequencySeries.read(fname)
-    twhite = tseries.whiten(asd=asd)
+
+    fseries = scipy.fft.rfft(tseries)
+
+    freqs = asd.frequencies
+    freqs_interp = np.linspace(freqs[0], freqs[-1], len(fseries))
+    asd_interp = np.interp(freqs_interp, freqs, asd.value)
+
+    whitened = scipy.fft.irfft(fseries/asd_interp)
+
+    twhite = TimeSeries(whitened, times=tseries.times)
 
     tname = tname.split('/')[-1].split('.')[0]
     twhite.write(f'{outdir}/{tname}_whitened.hdf5', overwrite=True,
@@ -78,7 +88,6 @@ def find_noisy(data, threshold, padding):
 
     noise_idx = np.argwhere(np.abs(zscore(data)) > threshold).T.tolist()[0]
 
-    # pylint: disable-next=global-statement
     # source https://stackoverflow.com/questions/53177358/removing-numbers-which-are-close-to-each-other-in-a-list  # noqa: E501
     usedValues = set()
     noise_idx_isolated = []
@@ -109,18 +118,20 @@ def make_oscan(noisy, clean, t0, outdir):
     """Plot omegascans of the original, cleaned and the difference of the
     time-series.
     """
-    win_crop = 40
-    noisy = noisy.crop(t0 - win_crop/2, t0 + win_crop/2)
-    clean = clean.crop(t0 - win_crop/2, t0 + win_crop/2)
-
     noisy = TimeSeries(noisy, times=noisy.times.value - t0)
     clean = TimeSeries(clean, times=clean.times.value - t0)
 
+    win_crop = 40
     win_plot = 4
-    plot_start = t0 - win_plot/2
-    plot_end = t0 + win_plot/2
-
+    plot_start = -win_plot/2
+    plot_end = win_plot/2
+    ylim = (10, 512)
+    alim = (0, 25)
     qrange = (10, 20)
+
+    noisy = noisy.crop(-win_crop/2, win_crop/2)
+    clean = clean.crop(-win_crop/2, win_crop/2)
+
     dataset = ['orig', 'clean', 'diff']
     q_trans = {}
     q_trans['orig'] = noisy.q_transform(outseg=(plot_start, plot_end),
@@ -129,16 +140,14 @@ def make_oscan(noisy, clean, t0, outdir):
                                          qrange=qrange)
     q_trans['diff'] = q_trans['orig'] - q_trans['clean']
 
-    plot, axes = plt.subplots(nrows=3, sharex=True, figsize=(3.375*2, 3.375*3))
-
     label = {}
     label['orig'] = 'Original data'
     label['clean'] = 'Cleaned data'
     label['diff'] = 'Original - Cleaned'
-    alim = (0, 25)
-    ylim = (10, 1024)
-    for i, ax in zip(dataset, axes):
 
+    plot, axes = plt.subplots(nrows=3, sharex=True, figsize=(3.375*2, 3.375*3))
+
+    for i, ax in zip(dataset, axes):
         ax.imshow(q_trans[i], vmin=alim[0], vmax=alim[1])
         ax.set_ylim(ylim[0], ylim[1])
         ax.set_xlabel('')
@@ -151,6 +160,4 @@ def make_oscan(noisy, clean, t0, outdir):
     axes[-1].set_xlabel(r"$\mathrm{Time \ (seconds)}$")
     cbar = axes[0].colorbar(clim=(alim[0], alim[1]), location='top')
     cbar.set_label(r"$\mathrm{Normalized \ energy}$")
-
-    plot.subplots_adjust(top=0.85)
     plot.savefig(f'{outdir}/{t0}.png', dpi=400)
