@@ -27,6 +27,7 @@ dqsegdb2==1.2.1
 exceptiongroup==1.2.0
 executing==2.0.1
 fastjsonschema==2.19.1
+flake8==7.0.0
 flatbuffers==23.5.26
 fonttools==4.47.0
 fqdn==1.5.1
@@ -73,6 +74,7 @@ Markdown==3.5.1
 MarkupSafe==2.1.3
 matplotlib==3.8.2
 matplotlib-inline==0.1.6
+mccabe==0.7.0
 mistune==3.0.2
 ml-dtypes==0.2.0
 nbclient==0.9.0
@@ -111,8 +113,10 @@ ptyprocess==0.7.0
 pure-eval==0.2.2
 pyasn1==0.5.1
 pyasn1-modules==0.3.0
+pycodestyle==2.11.1
 pycparser==2.21
 pyerfa==2.0.1.1
+pyflakes==3.2.0
 Pygments==2.17.2
 PyJWT==2.8.0
 pyparsing==3.1.1
@@ -137,6 +141,7 @@ Send2Trash==1.8.2
 six==1.16.0
 sniffio==1.3.0
 soupsieve==2.5
+-e git+ssh://git@github.com/rmacas/nlsub-dev.git@d940aaa5c980a2ab07d39328c1c4fb06b9e4c8eb#egg=src
 stack-data==0.6.3
 tensorboard==2.15.1
 tensorboard-data-server==0.7.2
