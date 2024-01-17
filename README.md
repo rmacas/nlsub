@@ -7,7 +7,7 @@ For more scientific details, read [arXiv:2311.09921](https://arxiv.org/abs/2311.
 
 Cleaned time-series data frame is publicly available on [Zenodo](https://zenodo.org/records/10143338).
 
-![Image Alt text](/reports/figures/1264316154.png)
+![Image Alt text](/reports/figures/1264316116.345.png)
 
 Examples of the cleaned data are in the `reports/figures` folder.
 
