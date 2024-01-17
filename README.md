@@ -1,7 +1,7 @@
 nlsub
 ==============================
 
-Non-linear noise subtraction for gravitational-wave data tailored for GW200129 using machine learning. Full reproduction requires access to LIGO internal data and a GPU with about 30GB memory. Production-quality model training takes about 30 minutes on Nvidia A100 80GB.
+Machine learning algorithm to remove non-linear noise in gravitational-wave data around GW200129. Full reproduction requires access to LIGO internal data and a GPU with about 30GB memory. Production-quality model training takes about 30 minutes on Nvidia A100 80GB.
 
 For more scientific details, read [arXiv:2311.09921](https://arxiv.org/abs/2311.09921). 
 
