@@ -11,14 +11,14 @@ Cleaned time-series data frame is publicly available on [Zenodo](https://zenodo.
 
 Examples of the cleaned data are in the `reports/figures` folder.
 
+Installation
 --------
-Installation:
 1) Create a Conda environment with `make create_environment`
 2) Install Python packages with `make requirements`
-3) Install `nlsub` package with `pip install .`
+3) Install the `nlsub` package with `pip install .`
 
+Makefile commands
 --------
-Makefile commands:
 - `create_environment` - Set up Python interpreter environment.
 - `test_environment` - Test Python environment setup.
 - `get_data` - Download all required data. Requires access to LIGO internal data. Warning: some data is on tape, so this step may take hours.
